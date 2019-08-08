@@ -35,4 +35,7 @@ def main():
     return model
 
 if __name__ == '__main__':
+    # use CPU
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
     main()
