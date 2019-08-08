@@ -16,6 +16,17 @@ def save_model(model):
     return
 
 def get_model(num_classes=2):
+    # --- allow gpu memory growth ---
+    from keras.backend.tensorflow_backend import set_session
+    import tensorflow as tf
+
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    config.log_device_placement = True
+    sess = tf.Session(config=config)
+    set_session(sess)
+    # ------
+
     model = Sequential()
 
     model.add(Conv2D(32, (3, 3), input_shape=(64, 64, 3)))
