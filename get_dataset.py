@@ -1,10 +1,15 @@
 # Arda Mavi
 
 import numpy as np
+import os
 from os import listdir
 from skimage import io
 from scipy.misc import imresize
 from keras.preprocessing.image import array_to_img, img_to_array, load_img
+
+import boto3
+import botocore
+
 
 def get_img(data_path):
     # Getting image array from path:
@@ -13,7 +18,37 @@ def get_img(data_path):
     img = imresize(img, (img_size, img_size, 3))
     return img
 
+
+def get_s3_file():
+    """
+    Get training data from s3.
+    """
+    # get credentail
+    ENDPOINT_URL = os.getenv('ENDPOINT_URL', None)
+    ACCESS_KEY = os.getenv('ACCESS_KEY', None)
+    SECRET_KEY = os.getenv('SECRET_KEY', None)
+
+    # set s3 connection
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=ACCESS_KEY,
+        aws_secret_access_key=SECRET_KEY,
+        endpoint_url=ENDPOINT_URL,
+        config=botocore.config.Config(signature_version='s3')
+    )
+
+    # # list s3 buckets
+    # resp = s3_client.list_buckets()
+    # print(resp['Buckets'])
+
+    # download file
+    s3_client.download_file('npy-file', 'X.npy', 'Data/npy_train_data/X.npy')   # download X npy file
+    s3_client.download_file('npy-file', 'Y.npy', 'Data/npy_train_data/Y.npy')   # download Y npy file
+
+
 def get_dataset(dataset_path='Data/Train_Data'):
+    get_s3_file()   # get training data
+
     # Getting all data from data path:
     try:
         X = np.load('Data/npy_train_data/X.npy')
