@@ -28,6 +28,8 @@ def save_s3_model():
     ENDPOINT_URL = os.getenv('ENDPOINT_URL', None)
     ACCESS_KEY = os.getenv('ACCESS_KEY', None)
     SECRET_KEY = os.getenv('SECRET_KEY', None)
+    # set variable
+    BUCKET_NAME = 'train-model' # bucket name in s3
 
     # set s3 connection
     s3_client = boto3.client(
@@ -38,12 +40,13 @@ def save_s3_model():
         config=botocore.config.Config(signature_version='s3')
     )
 
-    # # list s3 buckets
-    # resp = s3_client.list_buckets()
-    # print(resp['Buckets'])
-
+    # check buckets exists
+    buckets = s3_client.list_buckets()
+    if BUCKET_NAME not in buckets:
+        s3_client.create_bucket(Bucket=BUCKET_NAME)
+        
     # save model
-    s3_client.upload_file('Data/Model/weights.h5', 'train-model', 'weights.h5') # upload file to s3
+    s3_client.upload_file('Data/Model/weights.h5', BUCKET_NAME, 'weights.h5') # upload file to s3
 
 
 def get_model(num_classes=2):
