@@ -42,6 +42,9 @@ def get_s3_file():
     # print(resp['Buckets'])
 
     # download file
+    if not os.path.exists('Data/npy_train_data/'):
+        os.makedirs('Data/npy_train_data/')
+    
     s3_client.download_file('npy-file', 'X.npy', 'Data/npy_train_data/X.npy')   # download X npy file
     s3_client.download_file('npy-file', 'Y.npy', 'Data/npy_train_data/Y.npy')   # download Y npy file
 
