@@ -27,6 +27,8 @@ def get_s3_file():
     ENDPOINT_URL = os.getenv('ENDPOINT_URL', None)
     ACCESS_KEY = os.getenv('ACCESS_KEY', None)
     SECRET_KEY = os.getenv('SECRET_KEY', None)
+    # set variable
+    BUCKET_NAME = 'npy-file' # bucket name in s3
 
     # set s3 connection
     s3_client = boto3.client(
@@ -45,8 +47,8 @@ def get_s3_file():
     if not os.path.exists('Data/npy_train_data/'):
         os.makedirs('Data/npy_train_data/')
     
-    s3_client.download_file('npy-file', 'X.npy', 'Data/npy_train_data/X.npy')   # download X npy file
-    s3_client.download_file('npy-file', 'Y.npy', 'Data/npy_train_data/Y.npy')   # download Y npy file
+    s3_client.download_file(BUCKET_NAME, 'X.npy', 'Data/npy_train_data/X.npy')   # download X npy file
+    s3_client.download_file(BUCKET_NAME, 'Y.npy', 'Data/npy_train_data/Y.npy')   # download Y npy file
 
 
 def get_dataset(dataset_path='Data/Train_Data'):
