@@ -2,6 +2,8 @@
 
 import os
 from keras.callbacks import ModelCheckpoint, TensorBoard
+from get_model import save_s3_model
+
 
 def train_model(model, X, X_test, Y, Y_test):
     checkpoints = []
@@ -24,6 +26,7 @@ def train_model(model, X, X_test, Y, Y_test):
 
     return model
 
+
 def main():
     from get_dataset import get_dataset
     X, X_test, Y, Y_test = get_dataset()
@@ -32,7 +35,10 @@ def main():
     import numpy
     model = train_model(model, X, X_test, Y, Y_test)
     save_model(model)
+    save_s3_model() # save model to s3
+
     return model
+
 
 if __name__ == '__main__':
     # use CPU

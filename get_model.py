@@ -4,6 +4,10 @@ import os
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten, Conv2D, MaxPooling2D
 
+import boto3
+import botocore
+
+
 def save_model(model):
     if not os.path.exists('Data/Model/'):
         os.makedirs('Data/Model/')
@@ -14,6 +18,33 @@ def save_model(model):
     model.save_weights("Data/Model/weights.h5")
     print('Model and weights saved')
     return
+
+
+def save_s3_model():
+    """
+    Save training model to s3.
+    """
+    # get credentail
+    ENDPOINT_URL = os.getenv('ENDPOINT_URL', None)
+    ACCESS_KEY = os.getenv('ACCESS_KEY', None)
+    SECRET_KEY = os.getenv('SECRET_KEY', None)
+
+    # set s3 connection
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=ACCESS_KEY,
+        aws_secret_access_key=SECRET_KEY,
+        endpoint_url=ENDPOINT_URL,
+        config=botocore.config.Config(signature_version='s3')
+    )
+
+    # # list s3 buckets
+    # resp = s3_client.list_buckets()
+    # print(resp['Buckets'])
+
+    # save model
+    s3_client.upload_file('Data/Model/weights.h5', 'train-model', 'weights.h5') # upload file to s3
+
 
 def get_model(num_classes=2):
     # --- allow gpu memory growth ---
@@ -54,6 +85,7 @@ def get_model(num_classes=2):
     model.compile(loss='categorical_crossentropy', optimizer='adadelta', metrics=['accuracy'])
 
     return model
+
 
 if __name__ == '__main__':
     save_model(get_model())
