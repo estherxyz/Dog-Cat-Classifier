@@ -37,6 +37,7 @@ def save_s3_model():
         aws_access_key_id=ACCESS_KEY,
         aws_secret_access_key=SECRET_KEY,
         endpoint_url=ENDPOINT_URL,
+        verify=False,
         config=botocore.config.Config(signature_version='s3')
     )
 
