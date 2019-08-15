@@ -56,8 +56,8 @@ def get_model(num_classes=2):
     import tensorflow as tf
 
     config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    config.log_device_placement = True
+    config.gpu_options.allow_growth = True  # allow memory growth
+    config.log_device_placement = False # do not show device info
     sess = tf.Session(config=config)
     set_session(sess)
     # ------
