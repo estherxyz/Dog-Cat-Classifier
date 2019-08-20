@@ -2,6 +2,7 @@
 
 import os
 from keras.callbacks import ModelCheckpoint, TensorBoard
+import requests
 from get_model import save_s3_model
 
 
@@ -28,14 +29,55 @@ def train_model(model, X, X_test, Y, Y_test):
 
 
 def main():
+    # get record log param
+    API_LOG_HOST = os.getenv('API_LOG_HOST', None)
+    API_LOG_PORT = os.getenv('API_LOG_PORT', None)
+    API_LOG_JOB_NAME = os.getenv('API_LOG_JOB_NAME', None)
+    req_log_url = 'http://{host}:{port}/jobs/{job_name}'.format(
+                    host=API_LOG_HOST,
+                    port=API_LOG_PORT,
+                    job_name=API_LOG_JOB_NAME
+                )
+
+    # get dataset
     from get_dataset import get_dataset
+    result = requests.post(url=req_log_url,
+                json={"exec_stage":"get_dataset", "exec_status":"start"},
+                verify=False
+            )
     X, X_test, Y, Y_test = get_dataset()
+    result = requests.post(url=req_log_url,
+                json={"exec_stage":"get_dataset", "exec_status":"finish"},
+                verify=False
+            )
+
+    # set model
     from get_model import get_model, save_model
     model = get_model(len(Y[0]))
+    
+    # training
     import numpy
+    result = requests.post(url=req_log_url,
+                json={"exec_stage":"training", "exec_status":"start"},
+                verify=False
+            )
     model = train_model(model, X, X_test, Y, Y_test)
+    result = requests.post(url=req_log_url,
+                json={"exec_stage":"training", "exec_status":"finish"},
+                verify=False
+            )
+
+    # save model
+    result = requests.post(url=req_log_url,
+                json={"exec_stage":"save_model", "exec_status":"start"},
+                verify=False
+            )
     save_model(model)
     save_s3_model() # save model to s3
+    result = requests.post(url=req_log_url,
+                json={"exec_stage":"save_model", "exec_status":"finish"},
+                verify=False
+            )
 
     return model
 
